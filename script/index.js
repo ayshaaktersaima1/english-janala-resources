@@ -3,6 +3,13 @@ const createElement = (arr) => {
     return (htmlElements.join(' '));
 }
 
+
+function pronounceWord(word) {
+    const utterance = new SpeechSynthesisUtterance(word);
+    utterance.lang = "en-EN"; // English
+    window.speechSynthesis.speak(utterance);
+}
+
 const manageSpinner = (status) => {
     if (status === true) {
         document.getElementById('spinner').classList.remove('hidden');
@@ -107,7 +114,7 @@ const displayLevelWord = (words) => {
             <div class="flex justify-between items-center">
                 <button onclick="loadWordDetails(${word.id})" class="btn bg-[#7abcf9] hover:bg-[#3c6287]"><i class="fa-solid fa-circle-info"
                         style="color: rgb(30, 48, 80);"></i></button>
-                <button class="btn bg-[#7fb9ef] hover:bg-[#3c6287]"><i class="fa-solid fa-volume-high" style="color: rgb(30, 48, 80);"></i></button>
+                <button onclick="pronounceWord('${word.word}')" class="btn bg-[#7fb9ef] hover:bg-[#3c6287]"><i class="fa-solid fa-volume-high" style="color: rgb(30, 48, 80);"></i></button>
 
             </div>
 
@@ -153,10 +160,21 @@ const displayWordDetails = (word) => {
 
     `;
     document.getElementById('my_modal_5').showModal();
-
-
-
-
-
 }
 
+// search
+document.getElementById('btn-search').addEventListener('click', () => {
+    removeActive();
+
+    const input = document.getElementById('input-search');
+    const searchValue = input.value.trim().toLowerCase();
+
+
+    fetch('https://openapi.programming-hero.com/api/words/all')
+        .then(res => res.json())
+        .then(data => {
+            const allWords = data.data;
+            const filterWords = allWords.filter(word => word.word.toLowerCase().includes(searchValue));
+            displayLevelWord(filterWords)
+        })
+})
